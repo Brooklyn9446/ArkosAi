@@ -1,14 +1,9 @@
-import { GoogleGenAI } from '@google/genai';
 import { Finding } from '../types/database';
 import { checkDependencies } from '../osv/checkDependencies';
 
 export async function runDependencyAgent(
   files: { path: string; content: string }[]
 ): Promise<Finding[]> {
-  // Instantiated to match prompt design, though mapping is deterministic
-  const apiKey = process.env.GOOGLE_GEMINI_API_KEY || 'dummy-key';
-  const ai = new GoogleGenAI({ apiKey });
-
   // Find package.json in the fetched files.
   // We only care about the root package.json, not nested ones
   // in subdirectories which might be test fixtures.

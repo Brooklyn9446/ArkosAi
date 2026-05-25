@@ -96,8 +96,17 @@ export async function fetchRepositoryFiles(repoUrl: string): Promise<GitHubFile[
     throw new Error('Invalid repository tree structure returned from GitHub.');
   }
 
+interface GitHubTreeItem {
+  path: string;
+  mode: string;
+  type: string;
+  sha: string;
+  size?: number;
+  url: string;
+}
+
   // 3. Filter files
-  const scannableFiles = treeData.tree.filter((item: any) =>
+  const scannableFiles = treeData.tree.filter((item: GitHubTreeItem) =>
     item.type === 'blob' && isScannableFile(item.path, item.size)
   );
 

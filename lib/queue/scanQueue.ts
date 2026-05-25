@@ -21,6 +21,7 @@ export function getRedisConnection(): IORedis {
 
 // Ensure the Queue is a singleton in development to prevent duplicate instances
 declare global {
+  // eslint-disable-next-line no-var
   var globalScanQueue: Queue | undefined;
 }
 

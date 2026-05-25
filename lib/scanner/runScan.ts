@@ -178,6 +178,7 @@ export async function persistFindings(
       // Brand new finding — insert it fresh.
       newCount++;
       // Exclude findings custom non-UUID string id before insertion
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { id: _, ...findingData } = finding;
       await supabaseAdmin.from('findings').insert({
         scan_id: scanId,
@@ -199,7 +200,7 @@ export async function persistFindings(
   );
 
   let fixedCount = 0;
-  for (const [fp, existing] of Array.from(existingByFingerprint.entries())) {
+  for (const fp of Array.from(existingByFingerprint.keys())) {
     if (!currentFingerprints.has(fp)) {
       fixedCount++;
       await supabaseAdmin
