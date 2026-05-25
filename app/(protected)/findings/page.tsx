@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Loader2, Search, Filter, ShieldAlert } from 'lucide-react';
+import { Loader2, Search, ShieldAlert } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import Header from '@/components/ui/Header';
 import FindingCard from '@/components/dashboard/FindingCard';
@@ -22,33 +22,40 @@ export default function FindingsHistoryPage() {
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
 
-  const fetchFindings = async () => {
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        router.push('/login');
-        return;
-      }
-      setUserEmail(user.email ?? null);
-
-      const res = await fetch('/api/findings');
-      if (res.ok) {
-        const data = await res.json();
-        setFindings(data.findings || []);
-      } else {
-        console.error("Failed to fetch findings");
-      }
-    } catch (err) {
-      console.error("Failed to load findings history page:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    async function fetchFindings() {
+      setLoading(true);
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          router.push('/login');
+          return;
+        }
+        setUserEmail(user.email ?? null);
+
+        // Build query parameters for server-side filtering
+        const params = new URLSearchParams();
+        if (statusFilter !== 'all') params.append('status', statusFilter);
+        if (severityFilter !== 'all') params.append('severity', severityFilter);
+        if (categoryFilter !== 'all') params.append('category', categoryFilter);
+
+        const res = await fetch(`/api/findings?${params.toString()}`);
+        if (res.ok) {
+          const data = await res.json();
+          setFindings(data.findings || []);
+        } else {
+          console.error("Failed to fetch findings");
+        }
+      } catch (err) {
+        console.error("Failed to load findings history page:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
     fetchFindings();
     document.title = 'ARKOS — Global Security Findings';
-  }, []);
+  }, [statusFilter, severityFilter, categoryFilter]);
 
   const handleStatusUpdate = async (findingId: string, status: string, note: string) => {
     try {
@@ -74,6 +81,9 @@ export default function FindingsHistoryPage() {
   const uniqueRepos = Array.from(
     new Set(openFindings.map(f => (f as any).scans?.repo_name).filter(Boolean))
   );
+
+  console.log(uniqueRepos);
+
   const repoCount = uniqueRepos.length;
 
   // Filter findings client-side
@@ -117,7 +127,7 @@ export default function FindingsHistoryPage() {
 
       {/* Main Workspace Container */}
       <main className="flex-grow max-w-7xl w-full mx-auto px-6 py-8 space-y-6">
-        
+
         {/* Page Title & Stats */}
         <div className="space-y-2 pb-4 border-b border-border-base">
           <h1 className="font-display font-light text-4xl text-ink tracking-tight uppercase">

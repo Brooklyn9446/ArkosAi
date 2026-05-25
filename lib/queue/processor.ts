@@ -67,8 +67,9 @@ export async function processScanJob(scanId: string, repoUrl: string): Promise<v
     }
 
     console.log(`[Processor] Scan ${scanId} completed successfully.`);
-  } catch (err: any) {
-    console.error(`[Processor] Error during scan job: ${err.message || err}`);
+  } catch (err) {
+    const errorMsg = err instanceof Error ? err.message : String(err);
+    console.error(`[Processor] Error during scan job: ${errorMsg}`);
     
     // Update status to failed
     const { error: failError } = await supabaseAdmin

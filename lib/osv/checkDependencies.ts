@@ -11,6 +11,25 @@ export type VulnerablePackage = {
   fixedVersion: string | null;
 };
 
+interface OSVVulnerability {
+  id: string;
+  summary?: string;
+  database_specific?: {
+    severity?: string;
+  };
+  affected?: {
+    ranges?: {
+      events?: {
+        fixed?: string;
+      }[];
+    }[];
+  }[];
+}
+
+interface OSVResponse {
+  vulns?: OSVVulnerability[];
+}
+
 // Takes the entire dependencies object from package.json
 // and returns only the packages that have known vulnerabilities
 export async function checkDependencies(
@@ -46,12 +65,11 @@ export async function checkDependencies(
 
         if (!response.ok) return;
 
-        const data = (await response.json()) as any;
+        const data = (await response.json()) as OSVResponse;
 
         // OSV returns a "vulns" array. Empty array means no vulnerabilities.
         if (!data.vulns || data.vulns.length === 0) return;
 
-        // Map OSV severity levels to our internal severity scale
         const severityMap: Record<string, 'critical' | 'high' | 'medium' | 'low'> = {
           'CRITICAL': 'critical',
           'HIGH': 'high',
@@ -60,7 +78,13 @@ export async function checkDependencies(
           'LOW': 'low',
         };
 
-        const vulns = data.vulns.map((v: any) => ({
+        interface MappedVuln {
+          id: string;
+          summary: string;
+          severity: string;
+        }
+
+        const vulns: MappedVuln[] = data.vulns.map((v: OSVVulnerability) => ({
           id: v.id,
           summary: v.summary ?? 'No description available',
           severity: v.database_specific?.severity ?? 'MEDIUM',
@@ -69,8 +93,8 @@ export async function checkDependencies(
         // Determine the highest severity across all vulnerabilities
         // for this package, used to colour the finding card
         const severityOrder = ['critical', 'high', 'medium', 'low', 'info'];
-        const mappedSeverities = vulns.map(
-          (v: any) => severityMap[v.severity] ?? 'medium'
+        const mappedSeverities: string[] = vulns.map(
+          (v: MappedVuln) => severityMap[v.severity] ?? 'medium'
         );
         const highestSeverity = (severityOrder.find(
           s => mappedSeverities.includes(s)
@@ -79,9 +103,9 @@ export async function checkDependencies(
         // Try to find the fixed version from the OSV affected ranges
         let fixedVersion: string | null = null;
         const firstVuln = data.vulns[0];
-        if (firstVuln?.affected?.[0]?.ranges?.[0]?.events) {
-          const fixedEvent = firstVuln.affected[0].ranges[0].events
-            .find((e: any) => e.fixed);
+        const events = firstVuln?.affected?.[0]?.ranges?.[0]?.events;
+        if (events) {
+          const fixedEvent = events.find((e) => e.fixed);
           fixedVersion = fixedEvent?.fixed ?? null;
         }
 

@@ -78,29 +78,32 @@ export default function DashboardWorkspace({ userEmail }: DashboardWorkspaceProp
     fetchScans();
   }, []);
 
-  // Fetch trend data for all unique repositories
+  // Fetch trend data in bulk for all repositories
   useEffect(() => {
     if (scans.length === 0) return;
 
-    const uniqueRepos = Array.from(new Set(scans.map(s => s.repo_name)));
-
     const fetchAllTrends = async () => {
-      const newTrends: Record<string, any[]> = {};
-      await Promise.all(
-        uniqueRepos.map(async (repo) => {
-          try {
-            const repoParam = repo.replace('/', '-');
-            const res = await fetch(`/api/trends/${repoParam}`);
-            if (res.ok) {
-              const data = await res.json();
-              newTrends[repo] = data.trends || [];
+      try {
+        const res = await fetch('/api/trends');
+        if (res.ok) {
+          const data = await res.json();
+          const trendsList = data.trends || [];
+
+          // Group the bulk trends by repository name
+          const newTrends: Record<string, any[]> = {};
+          trendsList.forEach((trend: any) => {
+            const repo = trend.repo_name;
+            if (!newTrends[repo]) {
+              newTrends[repo] = [];
             }
-          } catch (err) {
-            console.error(`Failed to fetch trends for ${repo}:`, err);
-          }
-        })
-      );
-      setTrendsMap(newTrends);
+            newTrends[repo].push(trend);
+          });
+
+          setTrendsMap(newTrends);
+        }
+      } catch (err) {
+        console.error('Failed to fetch all trends:', err);
+      }
     };
 
     fetchAllTrends();

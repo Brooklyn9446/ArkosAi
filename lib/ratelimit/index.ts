@@ -4,8 +4,8 @@ import { Redis } from '@upstash/redis';
 const url = process.env.UPSTASH_REDIS_REST_URL;
 const token = process.env.UPSTASH_REDIS_REST_TOKEN;
 
-let scanRateLimit: any = null;
-let apiRateLimit: any = null;
+let scanRateLimit: Ratelimit | null = null;
+let apiRateLimit: Ratelimit | null = null;
 
 if (url && token) {
   try {

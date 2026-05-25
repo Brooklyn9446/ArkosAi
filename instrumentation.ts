@@ -1,3 +1,4 @@
+
 export async function register() {
   // Ensure this only runs on the Node.js server side, not in Edge runtime
   if (process.env.NEXT_RUNTIME === 'nodejs') {
@@ -13,12 +14,7 @@ export async function register() {
       }
     }
 
-    const { initWorker } = await import('./lib/queue/worker');
-    try {
-      initWorker();
-      console.log('[Instrumentation] Background scan worker initialized successfully.');
-    } catch (err) {
-      console.error('[Instrumentation] Failed to initialize scan worker:', err);
-    }
+
+
   }
 }

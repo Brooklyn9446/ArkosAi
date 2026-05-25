@@ -2,6 +2,16 @@ import { GoogleGenAI } from '@google/genai';
 import { Finding } from '../types/database';
 import { GitHubFile } from '../github';
 
+interface SecretFinding {
+  title: string;
+  description: string;
+  severity: 'critical' | 'high' | 'medium' | 'low' | 'info';
+  file_path: string;
+  line_number: number | null;
+  code_snippet: string | null;
+  fix_suggestion: string;
+}
+
 function getAIClient(): GoogleGenAI {
   const apiKey = process.env.GOOGLE_GEMINI_API_KEY;
   if (!apiKey) {
@@ -88,10 +98,9 @@ Instructions:
         console.warn(`[Secrets Agent] Empty response received for batch starting at index ${i}.`);
         continue;
       }
-
       const parsed = JSON.parse(responseText);
       if (parsed && Array.isArray(parsed.findings)) {
-        const mappedFindings = parsed.findings.map((f: any, idx: number) => ({
+        const mappedFindings: Finding[] = (parsed.findings as SecretFinding[]).map((f: SecretFinding, idx: number) => ({
           id: `fnd-${Date.now()}-${i}-${idx}-${Math.random().toString(36).substr(2, 4)}`,
           title: f.title,
           description: f.description,

@@ -1,4 +1,6 @@
 import { Worker } from 'bullmq';
+import dotenv from 'dotenv';
+dotenv.config();
 import { getRedisConnection } from './scanQueue';
 import { supabaseAdmin } from '../supabase/admin';
 import { runFullScan } from '../scanner/runScan';
@@ -27,7 +29,7 @@ export function initWorker(): Worker {
     if (!globalWorker) {
       console.log('[Worker] Initializing background scan worker...');
       const connection = getRedisConnection();
-      
+
       globalWorker = new Worker(
         'scanQueue',
         async (job) => {
@@ -115,10 +117,18 @@ export function initWorker(): Worker {
               console.error('[Worker] Failed to fetch user email for notification:', err);
             }
 
+interface GenericFinding {
+  title?: string;
+  name?: string;
+  filePath?: string;
+  file_path?: string;
+  severity: string;
+}
+
             if (userEmail) {
-              const topFindings = (results.findings || [])
-                .filter((f: any) => f.severity === 'critical' || f.severity === 'high')
-                .map((f: any) => ({
+              const topFindings = (results.findings as GenericFinding[] || [])
+                .filter((f) => f.severity === 'critical' || f.severity === 'high')
+                .map((f) => ({
                   title: f.title || f.name || 'Vulnerability',
                   file_path: f.filePath || f.file_path || 'Unknown file',
                   severity: f.severity
@@ -133,9 +143,9 @@ export function initWorker(): Worker {
                 topFindings
               );
             }
-          } catch (error: any) {
+          } catch (error) {
             console.error(`[Worker] Scan ${scanId} failed:`, error);
-            
+
             const { error: failError } = await supabaseAdmin
               .from('scans')
               .update({
@@ -168,7 +178,3 @@ export function initWorker(): Worker {
   throw new Error('initWorker must only be called on the server side.');
 }
 
-if (typeof process !== 'undefined' && process.argv && process.argv.some(arg => arg.includes('worker.ts'))) {
-  console.log('[Worker] Worker started directly via CLI execution.');
-  initWorker();
-}

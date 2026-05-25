@@ -21,7 +21,10 @@ export async function runDependencyAgent(
     return [];
   }
 
-  let packageJson: any;
+  let packageJson: {
+    dependencies?: Record<string, string>;
+    devDependencies?: Record<string, string>;
+  };
   try {
     packageJson = JSON.parse(packageJsonFile.content);
   } catch {
