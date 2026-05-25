@@ -1,0 +1,67 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  background-color: #0E0E0E;
+  color: #F0EDE8;
+  font-family: var(--font-body), sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+::-webkit-scrollbar { width: 3px; height: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(240,237,232,0.12); }
+::-webkit-scrollbar-thumb:hover { background: rgba(240,237,232,0.24); }
+
+/* The foundational card class — use on every card container */
+.card {
+  background: #161616;
+  border: 0.5px solid rgba(240,237,232,0.08);
+  border-radius: 2px;
+  transition: border-color 200ms ease, transform 200ms ease;
+}
+
+.card:hover {
+  border-color: rgba(240,237,232,0.16);
+}
+
+/* Adds the copper top-edge glow line to a card */
+.card-lit {
+  position: relative;
+  overflow: hidden;
+}
+
+.card-lit::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(126,184,164,0.5) 50%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+/* Section divider line */
+.divider {
+  height: 0.5px;
+  background: rgba(240,237,232,0.08);
+  border: none;
+  margin: 0;
+}
+
+/* The radar sweep animation for scan progress bars */
+@keyframes radar-sweep {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(400%); }
+}
+
+.radar-sweep {
+  animation: radar-sweep 2s ease-in-out infinite;
+}
