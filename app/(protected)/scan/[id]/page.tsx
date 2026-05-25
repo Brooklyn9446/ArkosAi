@@ -16,7 +16,6 @@ import {
   XCircle
 } from 'lucide-react';
 import { Scan, DbFinding, ScanTrend } from '@/lib/types/database';
-import { SeverityBadge } from '@/components/ui/SeverityBadge';
 import { RiskScore } from '@/components/ui/RiskScore';
 import { createClient } from '@/lib/supabase/client';
 import Header from '@/components/ui/Header';
@@ -64,9 +63,9 @@ export default function ScanReportPage() {
         if (data.scan) {
           document.title = `ARKOS — Report for ${data.scan.repo_name}`;
         }
-      } catch (err: any) {
+      } catch (err) {
         console.error(err);
-        setError(err.message || 'An error occurred while loading the report.');
+        setError(err instanceof Error ? err.message : 'An error occurred while loading the report.');
       } finally {
         setLoading(false);
       }

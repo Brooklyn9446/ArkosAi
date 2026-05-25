@@ -3,7 +3,18 @@ import { NextRequest } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(req: NextRequest) {
+interface GitHubRepository {
+  id: number;
+  name: string;
+  full_name: string;
+  private: boolean;
+  html_url: string;
+  description: string | null;
+  default_branch: string;
+  updated_at: string;
+}
+
+export async function GET() {
   try {
     const supabase = createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -37,10 +48,10 @@ export async function GET(req: NextRequest) {
       return Response.json({ error: 'Failed to fetch repositories from GitHub.' }, { status: response.status });
     }
 
-    const repos = await response.json();
+    const repos = await response.json() as GitHubRepository[];
 
     // Map to safe subset
-    const safeRepos = repos.map((repo: any) => ({
+    const safeRepos = repos.map((repo: GitHubRepository) => ({
       id: repo.id,
       name: repo.name,
       full_name: repo.full_name,
@@ -52,7 +63,7 @@ export async function GET(req: NextRequest) {
     }));
 
     return Response.json({ repositories: safeRepos });
-  } catch (err: any) {
+  } catch (err) {
     console.error('[API GitHub Repos] Unexpected error:', err);
     return Response.json({ error: 'Internal server error.' }, { status: 500 });
   }

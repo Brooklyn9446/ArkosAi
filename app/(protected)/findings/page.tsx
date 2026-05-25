@@ -8,11 +8,18 @@ import Header from '@/components/ui/Header';
 import FindingCard from '@/components/dashboard/FindingCard';
 import { DbFinding } from '@/lib/types/database';
 
+interface ExtendedFinding extends DbFinding {
+  scans?: {
+    repo_name: string;
+  } | null;
+}
+
+const supabase = createClient();
+
 export default function FindingsHistoryPage() {
   const router = useRouter();
-  const supabase = createClient();
 
-  const [findings, setFindings] = useState<DbFinding[]>([]);
+  const [findings, setFindings] = useState<ExtendedFinding[]>([]);
   const [loading, setLoading] = useState(true);
   const [userEmail, setUserEmail] = useState<string | null>(null);
 
@@ -55,7 +62,7 @@ export default function FindingsHistoryPage() {
 
     fetchFindings();
     document.title = 'ARKOS — Global Security Findings';
-  }, [statusFilter, severityFilter, categoryFilter]);
+  }, [statusFilter, severityFilter, categoryFilter, router]);
 
   const handleStatusUpdate = async (findingId: string, status: string, note: string) => {
     try {
@@ -79,7 +86,7 @@ export default function FindingsHistoryPage() {
   const openFindings = findings.filter(f => f.status === 'open');
   const openCount = openFindings.length;
   const uniqueRepos = Array.from(
-    new Set(openFindings.map(f => (f as any).scans?.repo_name).filter(Boolean))
+    new Set(openFindings.map(f => f.scans?.repo_name).filter(Boolean))
   );
 
   console.log(uniqueRepos);
@@ -102,7 +109,7 @@ export default function FindingsHistoryPage() {
       const query = searchQuery.toLowerCase();
       const titleMatch = finding.title.toLowerCase().includes(query);
       const pathMatch = (finding.file_path || '').toLowerCase().includes(query);
-      const repoMatch = ((finding as any).scans?.repo_name || '').toLowerCase().includes(query);
+      const repoMatch = (finding.scans?.repo_name || '').toLowerCase().includes(query);
       return titleMatch || pathMatch || repoMatch;
     }
 

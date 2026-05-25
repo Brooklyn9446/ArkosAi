@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Search, Lock, Unlock, Webhook, Terminal, 
-  Loader2, CheckCircle2, AlertTriangle, RefreshCw 
+  Loader2, AlertTriangle, RefreshCw 
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { connectGitHub } from '@/lib/github/auth';
@@ -31,9 +31,15 @@ interface RepoBrowserProps {
   onScanTriggered: (repoUrl: string) => void;
 }
 
+interface UserProfile {
+  id: string;
+  github_username: string | null;
+  github_avatar_url?: string | null;
+}
+
 export default function RepoBrowser({ onScanTriggered }: RepoBrowserProps) {
   const [isConnected, setIsConnected] = useState(false);
-  const [profile, setProfile] = useState<any>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [repos, setRepos] = useState<Repository[]>([]);
   const [monitored, setMonitored] = useState<MonitoredRepo[]>([]);
   const [loading, setLoading] = useState(true);
@@ -43,7 +49,6 @@ export default function RepoBrowser({ onScanTriggered }: RepoBrowserProps) {
 
   // Manual URL scanning fallback
   const [manualUrl, setManualUrl] = useState('');
-  const [manualSubmitting, setManualSubmitting] = useState(false);
 
   useEffect(() => {
     async function checkAuthAndFetch() {
@@ -117,7 +122,7 @@ export default function RepoBrowser({ onScanTriggered }: RepoBrowserProps) {
   const handleConnect = async () => {
     try {
       await connectGitHub();
-    } catch (err: any) {
+    } catch (err) {
       console.error('[RepoBrowser] GitHub Auth initiation failed:', err);
       setError('Could not connect to GitHub. Please try again.');
     }
@@ -154,9 +159,10 @@ export default function RepoBrowser({ onScanTriggered }: RepoBrowserProps) {
           throw new Error(errData.error || 'Failed to configure webhook.');
         }
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error('[RepoBrowser] Webhook toggle failed:', err);
-      alert(`Webhook Configuration Error: ${err.message}`);
+      const errMsg = err instanceof Error ? err.message : String(err);
+      alert(`Webhook Configuration Error: ${errMsg}`);
     } finally {
       setWebhookLoading(prev => ({ ...prev, [repo.full_name]: false }));
     }
@@ -268,6 +274,7 @@ export default function RepoBrowser({ onScanTriggered }: RepoBrowserProps) {
       {/* Header and User profile info */}
       <div className="card p-6 bg-surface border border-border-base flex items-center justify-between">
         <div className="flex items-center space-x-4">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           {profile?.github_avatar_url ? (
             <img 
               src={profile.github_avatar_url} 

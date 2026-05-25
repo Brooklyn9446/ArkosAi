@@ -11,14 +11,19 @@ import {
   CheckCircle,
   XCircle,
   ChevronDown,
-  ChevronUp,
-  Cpu
+  ChevronUp
 } from 'lucide-react';
 import { DbFinding } from '@/lib/types/database';
 import { SeverityBadge } from '@/components/ui/SeverityBadge';
 
+interface ExtendedFinding extends DbFinding {
+  scans?: {
+    repo_name: string;
+  } | null;
+}
+
 interface FindingCardProps {
-  finding: DbFinding;
+  finding: ExtendedFinding;
   onStatusUpdate: (findingId: string, status: string, note: string) => Promise<void>;
   isCompactDefault?: boolean;
 }
@@ -133,7 +138,7 @@ export default function FindingCard({
   };
 
   const CatIcon = getCategoryIcon(finding.category);
-  const repoName = (finding as any).scans?.repo_name;
+  const repoName = finding.scans?.repo_name;
   const isTriaged = finding.status !== 'open';
 
   return (
@@ -285,7 +290,7 @@ export default function FindingCard({
                       </span>
                       {finding.status_note && (
                         <span className="font-mono text-[10px] text-ink-dim">
-                          Note: "{finding.status_note}"
+                          Note: &quot;{finding.status_note}&quot;
                         </span>
                       )}
                     </div>

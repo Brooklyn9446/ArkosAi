@@ -38,7 +38,7 @@ export async function POST(
   // Fetch the specific file that contains the vulnerability
   // so the Fix Agent has full context for the surrounding code.
   let fileContent = '';
-  const repoUrl = (finding.scans as any)?.repo_url;
+  const repoUrl = (finding.scans as { repo_url: string } | null)?.repo_url;
   
   if (repoUrl && finding.file_path) {
     try {

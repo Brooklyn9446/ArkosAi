@@ -87,7 +87,7 @@ export async function POST(req: NextRequest) {
     }
 
     return Response.json({ scan: scanRow }, { status: 201 });
-  } catch (err: any) {
+  } catch (err) {
     console.error('[API Scans] Unexpected error in POST handler:', err);
     return Response.json({ error: 'Internal server error.' }, { status: 500 });
   }
@@ -114,7 +114,7 @@ export async function GET() {
     }
 
     return Response.json({ scans });
-  } catch (err: any) {
+  } catch (err) {
     console.error('[API Scans] Unexpected error in GET handler:', err);
     return Response.json({ error: 'Internal server error.' }, { status: 500 });
   }

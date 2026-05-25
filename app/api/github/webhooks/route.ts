@@ -111,7 +111,7 @@ export async function POST(req: NextRequest) {
     }
 
     return Response.json({ message: 'Webhook successfully registered.', monitored }, { status: 201 });
-  } catch (err: any) {
+  } catch (err) {
     console.error('[Webhooks API] Unexpected error in POST:', err);
     return Response.json({ error: 'Internal server error.' }, { status: 500 });
   }
@@ -138,7 +138,7 @@ export async function GET() {
     }
 
     return Response.json({ monitored });
-  } catch (err: any) {
+  } catch (err) {
     console.error('[Webhooks API] Unexpected error in GET:', err);
     return Response.json({ error: 'Internal server error.' }, { status: 500 });
   }
@@ -207,7 +207,7 @@ export async function DELETE(req: NextRequest) {
     }
 
     return Response.json({ success: true, message: 'Repository unmonitored.' });
-  } catch (err: any) {
+  } catch (err) {
     console.error('[Webhooks API] Unexpected error in DELETE:', err);
     return Response.json({ error: 'Internal server error.' }, { status: 500 });
   }

@@ -11,11 +11,16 @@ import { connectGitHub } from '@/lib/github/auth';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Github } from '@/components/ui/GithubIcon';
 
+interface UserProfile {
+  id: string;
+  github_username: string | null;
+}
+
 export default function OnboardingPage() {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [isConnected, setIsConnected] = useState(false);
-  const [profile, setProfile] = useState<any>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -233,7 +238,7 @@ export default function OnboardingPage() {
                     Ready to Launch
                   </h1>
                   <p className="text-sm sm:text-base font-body text-ink-sec leading-relaxed">
-                    You're ready to start secure code deployments. You can now import your repositories, set up automatic git-push webhooks, and trigger on-demand security scans directly from your dashboard.
+                    You&apos;re ready to start secure code deployments. You can now import your repositories, set up automatic git-push webhooks, and trigger on-demand security scans directly from your dashboard.
                   </p>
                 </div>
 

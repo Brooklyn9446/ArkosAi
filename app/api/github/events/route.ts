@@ -112,7 +112,7 @@ export async function POST(req: NextRequest) {
     }
 
     return Response.json({ success: true, scanId: scanRow.id });
-  } catch (err: any) {
+  } catch (err) {
     console.error('[Webhooks Event] Unexpected error in receiver:', err);
     return Response.json({ error: 'Internal server error' }, { status: 500 });
   }

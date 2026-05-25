@@ -48,7 +48,7 @@ export async function GET(
       findings: findings ?? [], 
       trend: trend ?? null 
     });
-  } catch (err: any) {
+  } catch (err) {
     console.error(`[API Scan Detail] Unexpected error in GET handler:`, err);
     return Response.json({ error: 'Internal server error.' }, { status: 500 });
   }
