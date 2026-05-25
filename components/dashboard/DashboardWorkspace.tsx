@@ -2,15 +2,15 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Terminal, ArrowLeft, XCircle, Code } from 'lucide-react';
-import { Scan } from '@/lib/types/database';
+import { ArrowLeft, Code } from 'lucide-react';
+import { Scan, ScanTrend } from '@/lib/types/database';
 import { StatusBadge } from '@/components/ui/StatusBadge';
 import ScanProgressView from './ScanProgressView';
 import { ResponsiveContainer, LineChart, Line } from 'recharts';
 import RepoBrowser from './RepoBrowser';
 import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 
-function Sparkline({ data }: { data: any[] }) {
+function Sparkline({ data }: { data: ScanTrend[] }) {
   // Sort by scanned_at ascending
   const sortedData = [...data].sort((a, b) => new Date(a.scanned_at).getTime() - new Date(b.scanned_at).getTime());
   const chartData = sortedData.map((d, i) => ({ index: i, value: Number(d.risk_score) }));
@@ -34,16 +34,14 @@ function Sparkline({ data }: { data: any[] }) {
   );
 }
 
-interface DashboardWorkspaceProps {
-  userEmail: string;
-}
 
-export default function DashboardWorkspace({ userEmail }: DashboardWorkspaceProps) {
+
+export default function DashboardWorkspace() {
   const router = useRouter();
   const [scans, setScans] = useState<Scan[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(true);
   const [activeScan, setActiveScan] = useState<Scan | null>(null);
-  const [trendsMap, setTrendsMap] = useState<Record<string, any[]>>({});
+  const [trendsMap, setTrendsMap] = useState<Record<string, ScanTrend[]>>({});
 
   // Form submission state
   const [submitting, setSubmitting] = useState(false);
@@ -90,8 +88,8 @@ export default function DashboardWorkspace({ userEmail }: DashboardWorkspaceProp
           const trendsList = data.trends || [];
 
           // Group the bulk trends by repository name
-          const newTrends: Record<string, any[]> = {};
-          trendsList.forEach((trend: any) => {
+          const newTrends: Record<string, ScanTrend[]> = {};
+          trendsList.forEach((trend: ScanTrend) => {
             const repo = trend.repo_name;
             if (!newTrends[repo]) {
               newTrends[repo] = [];
@@ -132,9 +130,10 @@ export default function DashboardWorkspace({ userEmail }: DashboardWorkspaceProp
       // Update history list and set as active scan to show progress view
       setScans(prev => [newScan, ...prev]);
       setActiveScan(newScan);
-    } catch (err: any) {
+    } catch (err) {
       console.error('Submission error:', err);
-      setSubmitError(err.message || 'An unexpected error occurred.');
+      const errMsg = err instanceof Error ? err.message : String(err);
+      setSubmitError(errMsg || 'An unexpected error occurred.');
     } finally {
       setSubmitting(false);
     }
@@ -238,8 +237,8 @@ export default function DashboardWorkspace({ userEmail }: DashboardWorkspaceProp
                   key={scan.id}
                   onClick={() => handleScanClick(scan)}
                   className={`w-full text-left p-4 rounded-[2px] border transition-all duration-150 block relative ${isActive
-                      ? 'bg-raised border-copper'
-                      : 'bg-surface border-border-base hover:border-border-bright'
+                    ? 'bg-raised border-copper'
+                    : 'bg-surface border-border-base hover:border-border-bright'
                     }`}
                 >
                   {/* Subtle top indicator glow for selected active scan */}
@@ -260,9 +259,9 @@ export default function DashboardWorkspace({ userEmail }: DashboardWorkspaceProp
                           <>
                             <span className="text-ink-dim">|</span>
                             <span className={`px-1.5 py-0.5 rounded-[2px] text-[9px] font-mono uppercase tracking-wider ${scan.risk_score >= 80 ? 'bg-sev-critical/10 text-sev-critical' :
-                                scan.risk_score >= 60 ? 'bg-sev-high/10 text-sev-high' :
-                                  scan.risk_score >= 30 ? 'bg-sev-medium/10 text-sev-medium' :
-                                    'bg-sev-low/10 text-sev-low'
+                              scan.risk_score >= 60 ? 'bg-sev-high/10 text-sev-high' :
+                                scan.risk_score >= 30 ? 'bg-sev-medium/10 text-sev-medium' :
+                                  'bg-sev-low/10 text-sev-low'
                               }`}>
                               Risk: {Math.round(scan.risk_score)}
                             </span>

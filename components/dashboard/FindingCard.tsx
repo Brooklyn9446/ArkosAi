@@ -2,14 +2,12 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Key, 
-  ShieldAlert, 
-  Database, 
-  Lock, 
+import {
+  Key,
+  ShieldAlert,
+  Database,
+  Lock,
   FileCode,
-  CheckCircle,
-  XCircle,
   ChevronDown,
   ChevronUp
 } from 'lucide-react';
@@ -28,15 +26,15 @@ interface FindingCardProps {
   isCompactDefault?: boolean;
 }
 
-export default function FindingCard({ 
-  finding, 
-  onStatusUpdate, 
-  isCompactDefault = false 
+export default function FindingCard({
+  finding,
+  onStatusUpdate,
+  isCompactDefault = false
 }: FindingCardProps) {
   const [isExpanded, setIsExpanded] = useState(!isCompactDefault);
   const [isHovered, setIsHovered] = useState(false);
   const [triageNote, setTriageNote] = useState('');
-  
+
   // Fix generation states
   const [generatingFix, setGeneratingFix] = useState(false);
   const [fixResult, setFixResult] = useState<{
@@ -46,7 +44,7 @@ export default function FindingCard({
     warnings: string[];
     cached?: boolean;
   } | null>(null);
-  
+
   // Cached local values for fields if we already generated a fix (e.g. from DB)
   useState(() => {
     if (finding.fix_diff) {
@@ -142,19 +140,17 @@ export default function FindingCard({
   const isTriaged = finding.status !== 'open';
 
   return (
-    <div 
-      className={`card bg-surface transition-all duration-200 ${
-        isTriaged ? 'opacity-40' : ''
-      }`}
+    <div
+      className={`card bg-surface transition-all duration-200 ${isTriaged ? 'opacity-40' : ''
+        }`}
     >
       {/* Top indicator bar on hover or expansion */}
-      <div className={`h-[1.5px] w-full transition-colors ${
-        isExpanded ? 'bg-copper' : 'bg-transparent'
-      }`} />
+      <div className={`h-[1.5px] w-full transition-colors ${isExpanded ? 'bg-copper' : 'bg-transparent'
+        }`} />
 
       <div className="p-6 space-y-4">
         {/* Header Area */}
-        <div 
+        <div
           className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border-base/50 pb-3 cursor-pointer"
           onClick={() => isCompactDefault && setIsExpanded(!isExpanded)}
         >
@@ -191,7 +187,7 @@ export default function FindingCard({
 
         {/* Compact Title and Info always visible */}
         <div className="space-y-1">
-          <h3 
+          <h3
             className="font-body font-semibold text-base text-ink cursor-pointer hover:text-copper transition-colors"
             onClick={() => isCompactDefault && setIsExpanded(!isExpanded)}
           >
@@ -247,7 +243,7 @@ export default function FindingCard({
               </div>
 
               {/* Status Triage Controls */}
-              <div 
+              <div
                 className="flex flex-wrap items-center gap-4 pt-2 border-t border-border-base/50"
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
@@ -281,11 +277,10 @@ export default function FindingCard({
                 ) : (
                   <div className="flex items-center justify-between w-full">
                     <div className="flex items-center gap-2">
-                      <span className={`px-2 py-0.5 rounded-[2px] font-mono text-[10px] uppercase tracking-wider ${
-                        finding.status === 'accepted' 
-                          ? 'bg-sev-medium/10 text-sev-medium border border-sev-medium/20' 
+                      <span className={`px-2 py-0.5 rounded-[2px] font-mono text-[10px] uppercase tracking-wider ${finding.status === 'accepted'
+                          ? 'bg-sev-medium/10 text-sev-medium border border-sev-medium/20'
                           : 'bg-sev-high/10 text-sev-high border border-sev-high/20'
-                      }`}>
+                        }`}>
                         Triaged: {finding.status === 'accepted' ? 'Accepted Risk' : 'False Positive'}
                       </span>
                       {finding.status_note && (
@@ -377,12 +372,11 @@ export default function FindingCard({
                                 <span className="font-mono text-[9px] text-ink-dim uppercase tracking-wider block">
                                   Fix Analyst Explanation
                                 </span>
-                                
-                                <span className={`px-2 py-0.5 rounded-[2px] text-[9px] font-mono uppercase tracking-wider ${
-                                  fixResult.confidence === 'high' ? 'bg-sev-low/10 text-sev-low border border-sev-low/20' :
-                                  fixResult.confidence === 'medium' ? 'bg-sev-medium/10 text-sev-medium border border-sev-medium/20' :
-                                  'bg-sev-high/10 text-sev-high border border-sev-high/20'
-                                }`}>
+
+                                <span className={`px-2 py-0.5 rounded-[2px] text-[9px] font-mono uppercase tracking-wider ${fixResult.confidence === 'high' ? 'bg-sev-low/10 text-sev-low border border-sev-low/20' :
+                                    fixResult.confidence === 'medium' ? 'bg-sev-medium/10 text-sev-medium border border-sev-medium/20' :
+                                      'bg-sev-high/10 text-sev-high border border-sev-high/20'
+                                  }`}>
                                   Confidence: {fixResult.confidence}
                                 </span>
 
@@ -392,7 +386,7 @@ export default function FindingCard({
                                   </span>
                                 )}
                               </div>
-                              
+
                               <p className="text-xs font-body text-ink-sec leading-relaxed">
                                 {fixResult.explanation}
                               </p>

@@ -32,8 +32,9 @@ export default function LoginForm() {
         router.refresh();
         router.push('/dashboard');
       }
-    } catch (err: any) {
-      setError(err.message || 'An unexpected error occurred.');
+    } catch (err) {
+      const errMsg = err instanceof Error ? err.message : String(err);
+      setError(errMsg || 'An unexpected error occurred.');
     } finally {
       setLoading(false);
     }
@@ -127,7 +128,7 @@ export default function LoginForm() {
 
       <div className="mt-6 text-center">
         <p className="text-sm font-body text-ink-sec">
-          Don't have an account?{' '}
+          Don&apos;t have an account?{' '}
           <Link href="/signup" className="font-medium text-copper hover:text-copper-dim transition-colors">
             Sign up
           </Link>

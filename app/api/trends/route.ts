@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const supabase = createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
     }
 
     return NextResponse.json({ trends: trends ?? [] });
-  } catch (err: any) {
+  } catch (err) {
     console.error('[API Trends Bulk] Unexpected error:', err);
     return NextResponse.json({ error: 'Internal server error.' }, { status: 500 });
   }

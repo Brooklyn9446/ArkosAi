@@ -39,8 +39,9 @@ export default function SignupForm() {
         router.refresh();
         router.push('/dashboard');
       }
-    } catch (err: any) {
-      setError(err.message || 'An unexpected error occurred.');
+    } catch (err) {
+      const errMsg = err instanceof Error ? err.message : String(err);
+      setError(errMsg || 'An unexpected error occurred.');
     } finally {
       setLoading(false);
     }
